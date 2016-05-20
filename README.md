@@ -1,8 +1,8 @@
-# AcousticFDTD
+AcousticFDTD
 An acoustic finite-difference time domain engine based in Python.
 -----------------------------------------------------------------
 The core FDTD engine will be written in C++, and will feature a Python wrapper.
-
+<br>
 Future implementation will see a number of features (roughly in order):
 GUI
 2D solving for homogeneous geometries using predescribed nodes
