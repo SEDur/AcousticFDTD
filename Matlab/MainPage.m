@@ -62,7 +62,7 @@ handles.c = 343;
 handles.T = 10.0;
 
 %define grid width in meters
-handles.gridWidth = 120;
+handles.gridWidth = 30;
 
 %define timestep
 handles.dt = 1/(2*handles.fs);
@@ -74,6 +74,7 @@ handles.pconst = handles.rho * handles.c^2 * (handles.dt/handles.dx) * handles.d
 handles.uconst = (1/handles.rho)*(handles.dt/handles.dx)*handles.dt*handles.c;
 % define pml depth
 handles.PMLdepth = 10;
+handles.PMLdepth = 30;
 %calc time steps
 handles.timestep = abs(handles.T/handles.dt);
 %calc grid size
@@ -121,6 +122,8 @@ for i = 1 : length(handles.diffmatrix)
     handles.diffmatrix = 1i * handles.tempdiffmatrix;
 end
 
+handles.pause = 0;
+
 handles.cntr = 1;
 
 % Choose default command line output for MainPage
@@ -153,19 +156,30 @@ axes(handles.axes1);
 for i = 0 : handles.dt : handles.T
 handles = spectral_function(handles);
         if mod(handles.cntr,10)==1
-          surf(real(handles.pd(100:300,100:300)));
-          shading interp;
-        view(2);
+          surf(real(handles.pd));
+%           shading interp;
+%         view(2);
         title(sprintf('Time = %.6f s Max = %.6f dB',i ,(20 * log10(max(max(abs(handles.pd))/(10^-12))))));
         drawnow();
+        if handles.pause > 1
+            break
+        end
         end
         i
+
 end
+handles.output = hObject;
 guidata(hObject, handles);
 
 
 % --- Executes on button press in pause.
 function pause_Callback(hObject, eventdata, handles)
+handles.pause = 100;
+% Choose default command line output for MainPage
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
 % hObject    handle to pause (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)

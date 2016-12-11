@@ -1,19 +1,19 @@
 function handles = spectral_function(handles)
 % %define FS
 % fs = 1000;
-% 
+%
 % %define density
 % rho = 1.21;
-% 
+%
 % %define speed of sound
 % c = 343;
-% 
+%
 % %define total time
 % T = 10.0;
-% 
+%
 % %define grid width in meters
 % gridWidth = 120;
-% 
+%
 % %define timestep
 % dt = 1/(2*fs);
 % %dfine grid spacing
@@ -41,10 +41,10 @@ function handles = spectral_function(handles)
 % src(5,10:610) = 1 -((90*10^-10).*sin((2*pi/1200)*(1:601)));
 % src(6,10:610) = 1 -((70*10^-10).*sin((2*pi/1200)*(1:601)));
 % src(7,10:610) = 1 -((50*10^-10).*sin((2*pi/1200)*(1:601)));
-% 
+%
 % %Create visualisation data storage matrix
 % pdstore = zeros(N, N, ceil((T/dt)/100)+1);
-% 
+%
 % %create alpha for PML region
 % alpha = 0;
 % %celculate geometry matricies
@@ -66,78 +66,102 @@ function handles = spectral_function(handles)
 %         tempdiffmatrix(i2) = (i2 - (N+1));
 %     end
 % end
-% 
+%
 % for i = 1 : length(diffmatrix)
 %     diffmatrix = 1i * tempdiffmatrix;
 % end
-% 
+%
 % cntr = 1;
 
 %calculate propagation
 % for i = 0 : handles.dt : (handles.T)
-    handles.phat = fft2(handles.pd);
-    for i1 = 1 : length(handles.phat)
-        handles.temp(i1,:) = handles.phat(i1,:) .* handles.diffmatrix;
-        handles.temp(:,i1) = handles.phat(:,i1) .* handles.diffmatrix';
+handles.phat = fft2(handles.pd);
+for i1 = 1 : length(handles.phat)
+    handles.temp(i1,:) = handles.phat(i1,:) .* handles.diffmatrix;
+    handles.temp(:,i1) = handles.phat(:,i1) .* handles.diffmatrix';
+end
+handles.pdiffhat = ifft2(handles.temp);
+
+for i2 = 1 : length(handles.pdiffhat)
+    if i2 < handles.PMLdepth
+        handles.alpha = (1/3)*(((handles.PMLdepth-i2)/ handles.PMLdepth)^3);
+    elseif i2 > handles.N - handles.PMLdepth
+        handles.alpha = (1/3) * (i2 - ((handles.N-handles.PMLdepth)/handles.PMLdepth)^3);
+    else
+        handles.alpha = 0;
     end
-    handles.pdiffhat = ifft2(handles.temp);
-    
-    for i2 = 1 : length(handles.pdiffhat)
-        if i2 < handles.PMLdepth
-            handles.alpha = (1/3)*(((handles.PMLdepth-i2)/ handles.PMLdepth)^3);
-        elseif i2 > handles.N - handles.PMLdepth
-            handles.alpha = (1/3) * (i2 - ((handles.N-handles.PMLdepth)/handles.PMLdepth)^3);
-        else
-            handles.alpha = 0;
-        end
-        handles.ud(i2,:) = handles.ud(i2,:) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(i2,:)/(3.142*handles.N));
-        handles.ud(:,i2) = handles.ud(:,i2) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(:,i2)/(3.142*handles.N));
+    handles.ud(i2,:) = handles.ud(i2,:) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(i2,:)/(3.142*handles.N));
+%     handles.ud(:,i2) = handles.ud(:,i2) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(:,i2)/(3.142*handles.N));
+end
+
+for i2 = 1 + handles.PMLdepth : length(handles.pdiffhat') - handles.PMLdepth
+    if i2 < handles.PMLdepth
+        handles.alpha = (1/3)*(((handles.PMLdepth-i2)/ handles.PMLdepth)^3);
+    elseif i2 > handles.N - handles.PMLdepth
+        handles.alpha = (1/3) * (i2 - ((handles.N-handles.PMLdepth)/handles.PMLdepth)^3);
+    else
+        handles.alpha = 0;
     end
-    
-    handles.uhat = fft2(handles.ud);
-    for i1 = 1 : length(handles.phat)
-        handles.temp(i1,:) = handles.uhat(i1,:) .* handles.diffmatrix;
-        handles.temp(:,i1) = handles.uhat(:,i1) .* handles.diffmatrix';
+%     handles.ud(i2,:) = handles.ud(i2,:) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(i2,:)/(3.142*handles.N));
+    handles.ud(:,i2) = handles.ud(:,i2) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(:,i2)/(3.142*handles.N));
+end
+
+handles.uhat = fft2(handles.ud);
+for i1 = 1 : length(handles.phat)
+    handles.temp(i1,:) = handles.uhat(i1,:) .* handles.diffmatrix;
+    handles.temp(:,i1) = handles.uhat(:,i1) .* handles.diffmatrix';
+end
+%     temp = uhat .* diffmatrix;
+handles.udiffhat = ifft2(handles.temp);
+for i2 = 1 : length(handles.udiffhat)
+    if i2 < handles.PMLdepth
+        handles.alpha = (1/3)*(((handles.PMLdepth-i2)/ handles.PMLdepth)^3);
+    elseif i2 > handles.N - handles.PMLdepth
+        handles.alpha = (1/3) * (i2 - ((handles.N-handles.PMLdepth)/handles.PMLdepth)^3);
+    else
+        handles.alpha = 0;
     end
-    %     temp = uhat .* diffmatrix;
-    handles.udiffhat = ifft2(handles.temp);
-    for i2 = 1 : length(handles.udiffhat)
-        if i2 < handles.PMLdepth
-            handles.alpha = (1/3)*(((handles.PMLdepth-i2)/ handles.PMLdepth)^3);
-        elseif i2 > handles.N - handles.PMLdepth
-            handles.alpha = (1/3) * (i2 - ((handles.N-handles.PMLdepth)/handles.PMLdepth)^3);
-        else
-            handles.alpha = 0;
-        end
-        handles.pd(i2,:) = handles.pd(i2,:) * ((1-handles.alpha)/(1+handles.alpha))-handles.pconst * (1/(1+handles.alpha))*(handles.udiffhat(i2,:)/(3.142*handles.N));
-        handles.pd(:,i2) = handles.pd(:,i2) * ((1-handles.alpha)/(1+handles.alpha))-handles.pconst * (1/(1+handles.alpha))*(handles.udiffhat(:,i2)/(3.142*handles.N));
+    handles.pd(i2,:) = handles.pd(i2,:) * ((1-handles.alpha)/(1+handles.alpha))-handles.pconst * (1/(1+handles.alpha))*(handles.udiffhat(i2,:)/(3.142*handles.N));
+%     handles.pd(:,i2) = handles.pd(:,i2) * ((1-handles.alpha)/(1+handles.alpha))-handles.pconst * (1/(1+handles.alpha))*(handles.udiffhat(:,i2)/(3.142*handles.N));
+end
+
+for i2 = 1 + handles.PMLdepth : length(handles.udiffhat) - handles.PMLdepth
+    if i2 < handles.PMLdepth
+        handles.alpha = (1/3)*(((handles.PMLdepth-i2)/ handles.PMLdepth)^3);
+    elseif i2 > handles.N - handles.PMLdepth
+        handles.alpha = (1/3) * (i2 - ((handles.N-handles.PMLdepth)/handles.PMLdepth)^3);
+    else
+        handles.alpha = 0;
     end
-    
-    handles.pd(ceil(handles.N/2)+3,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)+3,ceil(handles.N/2)) +  (1-(handles.src(1,handles.cntr)));
-    handles.pd(ceil(handles.N/2)+2,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)+2,ceil(handles.N/2)) +  (1-(handles.src(2,handles.cntr)));
-    handles.pd(ceil(handles.N/2)+1,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)+1,ceil(handles.N/2)) +  (1-(handles.src(3,handles.cntr)));
-    handles.pd(ceil(handles.N/2),ceil(handles.N/2)) = handles.pd(ceil(handles.N/2),ceil(handles.N/2)) +  (1-(handles.src(4,handles.cntr)));
-    handles.pd(ceil(handles.N/2)-1,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)-1,ceil(handles.N/2)) +  (1-(handles.src(5,handles.cntr)));
-    handles.pd(ceil(handles.N/2)-2,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)-2,ceil(handles.N/2)) +  (1-(handles.src(6,handles.cntr)));
-    handles.pd(ceil(handles.N/2)-3,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)-3,ceil(handles.N/2)) +  (1-(handles.src(7,handles.cntr)));
-    
+%     handles.pd(i2,:) = handles.pd(i2,:) * ((1-handles.alpha)/(1+handles.alpha))-handles.pconst * (1/(1+handles.alpha))*(handles.udiffhat(i2,:)/(3.142*handles.N));
+    handles.pd(:,i2) = handles.pd(:,i2) * ((1-handles.alpha)/(1+handles.alpha))-handles.pconst * (1/(1+handles.alpha))*(handles.udiffhat(:,i2)/(3.142*handles.N));
+end
+
+handles.pd(ceil(handles.N/2)+3,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)+3,ceil(handles.N/2)) +  (1-(handles.src(1,handles.cntr)));
+handles.pd(ceil(handles.N/2)+2,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)+2,ceil(handles.N/2)) +  (1-(handles.src(2,handles.cntr)));
+handles.pd(ceil(handles.N/2)+1,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)+1,ceil(handles.N/2)) +  (1-(handles.src(3,handles.cntr)));
+handles.pd(ceil(handles.N/2),ceil(handles.N/2)) = handles.pd(ceil(handles.N/2),ceil(handles.N/2)) +  (1-(handles.src(4,handles.cntr)));
+handles.pd(ceil(handles.N/2)-1,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)-1,ceil(handles.N/2)) +  (1-(handles.src(5,handles.cntr)));
+handles.pd(ceil(handles.N/2)-2,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)-2,ceil(handles.N/2)) +  (1-(handles.src(6,handles.cntr)));
+handles.pd(ceil(handles.N/2)-3,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)-3,ceil(handles.N/2)) +  (1-(handles.src(7,handles.cntr)));
+
 %         if mod(handles.cntr,100)==1
 %           ribbon(real(pd(100:300,100:300)));
 %     %     view([80 30]);
 %         title(sprintf('Time = %.6f s',dt*i));
 %         drawnow();
-    %         ribbon(real(pd));
-    %      pdstore(:,:,cntr)  = real(pd);
-    %         contourf(real(pd));
-    %         shading interp;
-    %         surf(real(pd));
-    %         view([90 55]);
-    %         title(sprintf('Time = %.6f s',dt*i));
-    %         drawnow();
-    %     T/dt*i
+%         ribbon(real(pd));
+%      pdstore(:,:,cntr)  = real(pd);
+%         contourf(real(pd));
+%         shading interp;
+%         surf(real(pd));
+%         view([90 55]);
+%         title(sprintf('Time = %.6f s',dt*i));
+%         drawnow();
+%     T/dt*i
 %         end
-    %     pdstore(cntr,:) = real(pd);
-    handles.cntr = handles.cntr + 1;
+%     pdstore(cntr,:) = real(pd);
+handles.cntr = handles.cntr + 1;
 % end
 
 % for i = 1000 : 100 : length(pdstore)

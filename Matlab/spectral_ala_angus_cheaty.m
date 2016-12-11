@@ -12,7 +12,7 @@ rho = 1.21;
 c = 343;
 
 %define total time
-T = 10.0;
+T = 1.0;
 
 %define grid width in meters
 gridWidth = 120;
@@ -73,9 +73,9 @@ end
     for i = 1 : length(diffmatrix)
         diffmatrix = 1i * tempdiffmatrix;
     end
-    
+figure()
 cntr = 1;
-
+cntr2 = 1;
 %calculate propagation
 for i = 0 : dt : T
     phat = fft(pd);
@@ -90,6 +90,8 @@ for i = 0 : dt : T
             alpha = 0;
         end
         ud(i2) = ud(i2) * ((1-alpha)/(1+alpha))-uconst * (1/(1+alpha))*(pdiffhat(i2)/(3.142*N));
+        alphastore(cntr) = alpha;
+        cntr = cntr + 1;
     end
     
     uhat = fft(ud);
@@ -104,24 +106,33 @@ for i = 0 : dt : T
             alpha = 0;
         end
         pd(i2) = pd(i2) * ((1-alpha)/(1+alpha))-pconst * (1/(1+alpha))*(udiffhat(i2)/(3.142*N));
+        alphastore(cntr) = alpha;
+        cntr = cntr + 1;
     end
     
-    pd(ceil(N/2)+3) = pd(ceil(N/2)+3) +  (1-(src(1,cntr)));
-    pd(ceil(N/2)+2) = pd(ceil(N/2)+2) +  (1-(src(2,cntr)));
-    pd(ceil(N/2)+1) = pd(ceil(N/2)+1) +  (1-(src(3,cntr)));
-    pd(ceil(N/2)) = pd(ceil(N/2)) +  (1-(src(4,cntr)));
-    pd(ceil(N/2)-1) = pd(ceil(N/2)-1) +  (1-(src(5,cntr)));
-    pd(ceil(N/2)-2) = pd(ceil(N/2)-2) +  (1-(src(6,cntr)));
-    pd(ceil(N/2)-3) = pd(ceil(N/2)-3) +  (1-(src(7,cntr)));
-    
-    pdstore(cntr,:) = real(pd);
-    cntr = cntr + 1;
+    pd(ceil(N/2)+3) = pd(ceil(N/2)+3) +  (1-(src(1,cntr2)));
+    pd(ceil(N/2)+2) = pd(ceil(N/2)+2) +  (1-(src(2,cntr2)));
+    pd(ceil(N/2)+1) = pd(ceil(N/2)+1) +  (1-(src(3,cntr2)));
+    pd(ceil(N/2)) = pd(ceil(N/2)) +  (1-(src(4,cntr2)));
+    pd(ceil(N/2)-1) = pd(ceil(N/2)-1) +  (1-(src(5,cntr2)));
+    pd(ceil(N/2)-2) = pd(ceil(N/2)-2) +  (1-(src(6,cntr2)));
+    pd(ceil(N/2)-3) = pd(ceil(N/2)-3) +  (1-(src(7,cntr2)));
+    subplot(3,1,1:2);
+    plot(pd);
+    title(sprintf('Time = %.6f s',dt*i));
+    subplot(3,1,3);
+    plot(alphastore);
+    title(sprintf('max alpha = %.3f',max(abs(alphastore))));
+    drawnow();
+%     pause(0.1);
+%     pdstore(cntr,:) = real(pd);
+    cntr2 = cntr2 + 1;
 end
 
-for i = 1000 : 100 : length(pdstore)
-    waterfall(pdstore(1:i,100:300)');
-    view([80 30]);
-    title(sprintf('Time = %.6f s',dt*i));
-    drawnow();
-%     pause(0.05);
-end
+% for i = 1000 : 100 : length(pdstore)
+%     waterfall(pdstore(1:i,100:300)');
+%     view([80 30]);
+%     title(sprintf('Time = %.6f s',dt*i));
+%     drawnow();
+% %     pause(0.05);
+% end
