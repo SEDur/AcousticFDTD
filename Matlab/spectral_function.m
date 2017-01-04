@@ -77,8 +77,8 @@ function handles = spectral_function(handles)
 % for i = 0 : handles.dt : (handles.T)
 handles.phat = fft2(handles.pd);
 for i1 = 1 : length(handles.phat)
-    handles.temp(i1,:) = handles.phat(i1,:) .* handles.diffmatrix;
-    handles.temp(:,i1) = handles.phat(:,i1) .* handles.diffmatrix';
+    handles.tempx(i1,:) = handles.phat(i1,:) .* handles.diffmatrix;
+    handles.tempy(:,i1) = handles.phat(:,i1) .* handles.diffmatrix';
 end
 handles.pdiffhat = ifft2(handles.temp);
 
@@ -90,7 +90,7 @@ for i2 = 1 : length(handles.pdiffhat)
     else
         handles.alpha = 0;
     end
-    handles.ud(i2,:) = handles.ud(i2,:) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(i2,:)/(3.142*handles.N));
+    handles.udx(i2,:) = handles.udx(i2,:) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(i2,:)/(3.142*handles.N));
 %     handles.ud(:,i2) = handles.ud(:,i2) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(:,i2)/(3.142*handles.N));
 end
 
@@ -103,13 +103,14 @@ for i2 = 1 + handles.PMLdepth : length(handles.pdiffhat') - handles.PMLdepth
         handles.alpha = 0;
     end
 %     handles.ud(i2,:) = handles.ud(i2,:) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(i2,:)/(3.142*handles.N));
-    handles.ud(:,i2) = handles.ud(:,i2) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(:,i2)/(3.142*handles.N));
+    handles.udy(:,i2) = handles.udy(:,i2) * ((1-handles.alpha)/(1+handles.alpha))-handles.uconst * (1/(1+handles.alpha))*(handles.pdiffhat(:,i2)/(3.142*handles.N));
 end
 
-handles.uhat = fft2(handles.ud);
+handles.uhatx = fft2(handles.udx);
+handles.uhaty = fft2(handles.udy);
 for i1 = 1 : length(handles.phat)
-    handles.temp(i1,:) = handles.uhat(i1,:) .* handles.diffmatrix;
-    handles.temp(:,i1) = handles.uhat(:,i1) .* handles.diffmatrix';
+    handles.tempx(i1,:) = handles.uhatx(i1,:) .* handles.diffmatrix;
+    handles.tempy(:,i1) = handles.uhaty(:,i1) .* handles.diffmatrix';
 end
 %     temp = uhat .* diffmatrix;
 handles.udiffhat = ifft2(handles.temp);

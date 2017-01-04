@@ -100,11 +100,14 @@ handles.pdstore = zeros(handles.N, handles.N, ceil((handles.T/handles.dt)/100)+1
 handles.alpha = 0;
 %celculate geometry matricies
 handles.phat = zeros(handles.N,handles.N);
-handles.uhat = zeros(handles.N,handles.N);
+handles.uhatx = zeros(handles.N,handles.N);
+handles.uhaty = zeros(handles.N,handles.N);
 handles.pdiffhat = zeros(handles.N,handles.N);
-handles.udiffhat = zeros(handles.N,handles.N);
+handles.udiffhatx = zeros(handles.N,handles.N);
+handles.udiffhaty = zeros(handles.N,handles.N);
 handles.pd = zeros(handles.N,handles.N);
-handles.ud = zeros(handles.N,handles.N);
+handles.udx = zeros(handles.N,handles.N);
+handles.udy = zeros(handles.N,handles.N);
 %Create the differentiator
 for i2 = 1 : handles.N
     if i2 <  ceil(handles.N+1/2)
