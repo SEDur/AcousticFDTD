@@ -5,7 +5,7 @@ for i1 = 1 : size(handles.phat,1)
     handles.temp(i1,:) = handles.phat(i1,:) .* handles.diffmatrix;
 end
 for i1 = 1 : size(handles.phat,2)
-    handles.temp(:,i1) = handles.phat(:,i1) .* handles.diffmatriy;
+    handles.temp(:,i1) = handles.phat(:,i1) .* handles.diffmatrix';
 end
 
 handles.pdiffhat = ifft2(handles.temp);
@@ -41,7 +41,7 @@ for i1 = 1 : size(handles.uhat,1)
     handles.temp(i1,:) = handles.uhat(i1,:) .* handles.diffmatrix;
 end
 for i1 = 1 : size(handles.uhat,2)
-    handles.temp(:,i1) = handles.uhat(:,i1) .* handles.diffmatriy;
+    handles.temp(:,i1) = handles.uhat(:,i1) .* handles.diffmatrix';
 end
 %     temp = uhat .* diffmatrix;
 handles.udiffhat = ifft2(handles.temp);
@@ -69,9 +69,9 @@ for i2 = 1 + handles.PMLdepth : length(handles.udiffhat) - handles.PMLdepth
     handles.pd(:,i2) = handles.pd(:,i2) * ((1-handles.alpha)/(1+handles.alpha))-handles.pconst * (1/(1+handles.alpha))*(handles.udiffhat(:,i2)/(3.142*handles.N));
 end
 %Drive source Locations
-handles.pd(ceil(handles.N/2),ceil(handles.N/2)+3) = handles.pd(ceil(handles.N/2),ceil(handles.N/2)+3) +  (1-(handles.src(1,handles.cntr)));
-handles.pd(ceil(handles.N/2),ceil(handles.N/2)+2) = handles.pd(ceil(handles.N/2),ceil(handles.N/2)+2) +  (1-(handles.src(2,handles.cntr)));
-handles.pd(ceil(handles.N/2),ceil(handles.N/2)+1) = handles.pd(ceil(handles.N/2),ceil(handles.N/2)+1) +  (1-(handles.src(3,handles.cntr)));
+handles.pd(ceil(handles.N/2)+3,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2),ceil(handles.N/2)+3) +  (1-(handles.src(1,handles.cntr)));
+handles.pd(ceil(handles.N/2)+2,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2),ceil(handles.N/2)+2) +  (1-(handles.src(2,handles.cntr)));
+handles.pd(ceil(handles.N/2)+1,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2),ceil(handles.N/2)+1) +  (1-(handles.src(3,handles.cntr)));
 handles.pd(ceil(handles.N/2)+3,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)+3,ceil(handles.N/2)) +  (1-(handles.src(1,handles.cntr)));
 handles.pd(ceil(handles.N/2)+2,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)+2,ceil(handles.N/2)) +  (1-(handles.src(2,handles.cntr)));
 handles.pd(ceil(handles.N/2)+1,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)+1,ceil(handles.N/2)) +  (1-(handles.src(3,handles.cntr)));
@@ -79,9 +79,9 @@ handles.pd(ceil(handles.N/2),ceil(handles.N/2)) = handles.pd(ceil(handles.N/2),c
 handles.pd(ceil(handles.N/2)-1,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)-1,ceil(handles.N/2)) +  (1-(handles.src(5,handles.cntr)));
 handles.pd(ceil(handles.N/2)-2,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)-2,ceil(handles.N/2)) +  (1-(handles.src(6,handles.cntr)));
 handles.pd(ceil(handles.N/2)-3,ceil(handles.N/2)) = handles.pd(ceil(handles.N/2)-3,ceil(handles.N/2)) +  (1-(handles.src(7,handles.cntr)));
-handles.pd(ceil(handles.N/2),ceil(handles.N/2)-1) = handles.pd(ceil(handles.N/2),ceil(handles.N/2)-1) +  (1-(handles.src(5,handles.cntr)));
-handles.pd(ceil(handles.N/2),ceil(handles.N/2)-2) = handles.pd(ceil(handles.N/2),ceil(handles.N/2)-2) +  (1-(handles.src(6,handles.cntr)));
-handles.pd(ceil(handles.N/2),ceil(handles.N/2)-3) = handles.pd(ceil(handles.N/2),ceil(handles.N/2)-3) +  (1-(handles.src(7,handles.cntr)));
+handles.pd(ceil(handles.N/2),ceil(handles.N/2)-1) = handles.pd(ceil(handles.N/2)-1,ceil(handles.N/2)-1) +  (1-(handles.src(5,handles.cntr)));
+handles.pd(ceil(handles.N/2),ceil(handles.N/2)-2) = handles.pd(ceil(handles.N/2)-2,ceil(handles.N/2)-2) +  (1-(handles.src(6,handles.cntr)));
+handles.pd(ceil(handles.N/2),ceil(handles.N/2)-3) = handles.pd(ceil(handles.N/2)-3,ceil(handles.N/2)-3) +  (1-(handles.src(7,handles.cntr)));
 %Update Counter
 handles.cntr = handles.cntr + 1;
 

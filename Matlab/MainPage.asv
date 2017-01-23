@@ -159,11 +159,7 @@ set(handles.stop_button,'Visible','On');
 set(handles.run_button,'Visible','Off');
 axes(handles.axes1);
 for i = 0 : handles.dt : handles.T
-    pause(0.000001) ;
-    if handles.hanger == 1
-        pause(0.000001) ;
-        return
-    end
+    if handles
     pause(0.000001) ;
 handles = spectral_function(handles);
 pause(0.000001) ;
