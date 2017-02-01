@@ -1,13 +1,10 @@
-function handles = spectral_function(handles)
+function handles = spectral_function2d(handles)
 
 handles.phat = fft2(handles.pd);
-for i1 = 1 : size(handles.phat,1)
-    handles.temp(i1,:) = handles.phat(i1,:) .* handles.diffmatrix;
-end
 
-for i1 = 1 : size(handles.phat,2)
-    handles.temp(:,i1) = handles.phat(:,i1) .* handles.diffmatriy;
-end
+    handles.temp = handles.phat .* handles.diffmatrix;
+
+
 
 handles.pdiffhat = ifft2(handles.temp);
 
@@ -38,12 +35,10 @@ end
 % handles.uhatx = fft2(handles.udx);
 % handles.uhaty = fft2(handles.udy);
 handles.uhat = fft2(handles.ud);
-for i1 = 1 : size(handles.uhat,1)
-    handles.temp(i1,:) = handles.uhat(i1,:) .* handles.diffmatrix;
-end
-for i1 = 1 : size(handles.uhat,2)
-    handles.temp(:,i1) = handles.uhat(:,i1) .* handles.diffmatriy;
-end
+
+    handles.temp = handles.uhat .* handles.diffmatrix;
+
+
 %     temp = uhat .* diffmatrix;
 handles.udiffhat = ifft2(handles.temp);
 for i2 = 1 : size(handles.udiffhat,1)

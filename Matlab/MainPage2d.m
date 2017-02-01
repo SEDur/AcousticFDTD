@@ -1,39 +1,39 @@
- function varargout = MainPage(varargin)
-% MAINPAGE MATLAB code for MainPage.fig
-%      MAINPAGE, by itself, creates a new MAINPAGE or raises the existing
+function varargout = MainPage2d(varargin)
+%MAINPAGE2D MATLAB code file for MainPage2d.fig
+%      MAINPAGE2D, by itself, creates a new MAINPAGE2D or raises the existing
 %      singleton*.
 %
-%      H = MAINPAGE returns the handle to a new MAINPAGE or the handle to
+%      H = MAINPAGE2D returns the handle to a new MAINPAGE2D or the handle to
 %      the existing singleton*.
 %
-%      MAINPAGE('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in MAINPAGE.M with the given input arguments.
+%      MAINPAGE2D('Property','Value',...) creates a new MAINPAGE2D using the
+%      given property value pairs. Unrecognized properties are passed via
+%      varargin to MainPage2d_OpeningFcn.  This calling syntax produces a
+%      warning when there is an existing singleton*.
 %
-%      MAINPAGE('Property','Value',...) creates a new MAINPAGE or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before MainPage_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to MainPage_OpeningFcn via varargin.
+%      MAINPAGE2D('CALLBACK') and MAINPAGE2D('CALLBACK',hObject,...) call the
+%      local function named CALLBACK in MAINPAGE2D.M with the given input
+%      arguments.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help MainPage
+% Edit the above text to modify the response to help MainPage2d
 
-% Last Modified by GUIDE v2.5 23-Jan-2017 16:33:41
+% Last Modified by GUIDE v2.5 01-Feb-2017 21:34:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @MainPage_OpeningFcn, ...
-                   'gui_OutputFcn',  @MainPage_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
+                   'gui_OpeningFcn', @MainPage2d_OpeningFcn, ...
+                   'gui_OutputFcn',  @MainPage2d_OutputFcn, ...
+                   'gui_LayoutFcn',  [], ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
-    gui_State.gui_Callback = str2func(varargin{1});
+   gui_State.gui_Callback = str2func(varargin{1});
 end
 
 if nargout
@@ -43,12 +43,9 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-%%
-%opening functions
 
-% --- Executes just before MainPage is made visible.
-function MainPage_OpeningFcn(hObject, eventdata, handles, varargin)
-% This function has no output args, see OutputFcn.
+% --- Executes just before MainPage2d is made visible.
+function MainPage2d_OpeningFcn(hObject, eventdata, handles, varargin)
 %define FS
 handles.fs = 1000;
 
@@ -84,8 +81,11 @@ handles.N = ceil(abs(handles.gridWidth/handles.dx)+2*handles.PMLdepth);
 
 %calculate differentiation matrix
 handles.tempdiffmatrix = zeros(1,handles.N);
-handles.diffmatrix = zeros(1,handles.N);
-handles.diffmatriy = zeros(handles.N,1);
+handles.tempdiffmatriy = zeros(handles.N,1);
+handles.diffmatrix = zeros(handles.N,handles.N);
+handles.diffamalgamx = zeros(handles.N,handles.N);
+handles.diffamalgamy = zeros(handles.N,handles.N);
+handles.diffamalgam = zeros(handles.N,handles.N);
 handles.temp = zeros(handles.N, handles.N);
 %Calc source
 handles.src = ones(7,ceil(handles.T/handles.dt)+10);
@@ -125,8 +125,15 @@ for i2 = 1 : handles.N
     end
 end
 
-handles.diffmatrix = 1i * handles.tempdiffmatrix;
-handles.diffmatriy = 1i * handles.tempdiffmatriy;
+for i1 = 1 : handles.N
+handles.diffamalgamx(:,i1) = handles.tempdiffmatrix;
+handles.diffamalgamy(i1,:) = handles.tempdiffmatriy;
+end
+handles.diffamalgam = handles.diffamalgamx + handles.diffamalgamy;
+handles.diffamalgam = handles.diffamalgam ./2;
+% handles.diffmatrix = 1i * handles.tempdiffmatrix;
+% handles.diffmatriy = 1i * handles.tempdiffmatriy;
+handles.diffmatrix = 1i * handles.diffamalgam;
 handles.hanger = 0;
 handles.cntr = 1;
 
@@ -168,7 +175,7 @@ for i = 0 : handles.dt : handles.T
         return
     end
     pause(0.000001) ;
-handles = spectral_function(handles);
+handles = spectral_function2d(handles);
 pause(0.000001) ;
         if mod(handles.cntr,10)==1
           surf(handles.pd);
