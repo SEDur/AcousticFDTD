@@ -1,15 +1,16 @@
 function handles = spectral_function(handles)
 
-handles.phat = fft2(handles.pd);
+handles.phat = fft(handles.pd,[],1);
 for i1 = 1 : size(handles.phat,1)
     handles.temp(i1,:) = handles.phat(i1,:) .* handles.diffmatrix;
 end
-
+handles.temp = ifft(handles.temp,[],1);
+handles.temp = fft(handles.temp,[],2);
 for i1 = 1 : size(handles.phat,2)
+%     handles.temp(i1,:) = handles.phat(i1,:) .* handles.diffmatrix;
     handles.temp(:,i1) = handles.phat(:,i1) .* handles.diffmatriy;
 end
-
-handles.pdiffhat = ifft2(handles.temp);
+handles.pdiffhat = ifft(handles.temp,[],2);
 
 for i2 = 1 : size(handles.pdiffhat,2)
     if i2 < handles.PMLdepth
@@ -37,15 +38,29 @@ end
 
 % handles.uhatx = fft2(handles.udx);
 % handles.uhaty = fft2(handles.udy);
-handles.uhat = fft2(handles.ud);
+% handles.uhat = fft2(handles.ud);
+% for i1 = 1 : size(handles.uhat,1)
+%     handles.temp(i1,:) = handles.uhat(i1,:) .* handles.diffmatrix;
+% end
+% for i1 = 1 : size(handles.uhat,2)
+%     handles.temp(:,i1) = handles.uhat(:,i1) .* handles.diffmatriy;
+% end
+
+handles.uhat = fft(handles.ud,[],1);
 for i1 = 1 : size(handles.uhat,1)
     handles.temp(i1,:) = handles.uhat(i1,:) .* handles.diffmatrix;
 end
-for i1 = 1 : size(handles.uhat,2)
-    handles.temp(:,i1) = handles.uhat(:,i1) .* handles.diffmatriy;
+handles.temp = ifft(handles.temp,[],1);
+handles.temp = fft(handles.temp,[],2);
+for i1 = 1 : size(handles.phat,2)
+    handles.temp(i1,:) = handles.uhat(i1,:) .* handles.diffmatrix;
+%     handles.temp(:,i1) = handles.uhat(:,i1) .* handles.diffmatriy;
 end
+
+handles.udiffhat = ifft(handles.temp,[],2);
+
 %     temp = uhat .* diffmatrix;
-handles.udiffhat = ifft2(handles.temp);
+% handles.udiffhat = ifft2(handles.temp);
 for i2 = 1 : size(handles.udiffhat,1)
     if i2 < handles.PMLdepth
         handles.alpha = (1/3)*(((handles.PMLdepth-i2)/ handles.PMLdepth)^3);

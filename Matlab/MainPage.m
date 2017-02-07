@@ -172,8 +172,8 @@ handles = spectral_function(handles);
 pause(0.000001) ;
         if mod(handles.cntr,10)==1
           surf(handles.pd);
-%           shading interp;
-%         view(2);
+          shading interp;
+        view(2);
         title(sprintf('Time = %.6f s Max = %.6f dB',i ,(20 * log10(max(max(abs(handles.pd))/(10^-12))))));
         drawnow();
         end
